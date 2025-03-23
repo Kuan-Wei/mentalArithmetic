@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可自訂直式心算練習生成器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 60px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .questions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+        .question {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-family: monospace;
+        }
+        .question-number {
+            align-self: flex-start;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .vertical-line {
+            border-bottom: 2px solid #333;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .result {
+            margin-top: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .answers {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
+        .hidden {
+            display: none;
+        }
+        @media print {
+            .controls {
+                display: none;
+            }
+            .answers.hidden {
+                display: none;
+            }
+            h1{
+                font-size: small;
+            }
+            body {
+                background-color: white;
+                font-size: small;
+            }
+            .section {
+                box-shadow: none;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>可自訂直式心算練習生成器</h1>
+    
+    <div class="controls">
+        <div class="control-group option-group">
+            <div class="control-item">
+                <label for="part1Count">第一部分題數:</label>
+                <input type="number" id="part1Count" min="1" max="20" value="5">
+            </div>
+            
+            <div class="control-item">
+                <label for="part1NumCount">第一部分運算數量:</label>
+                <input type="number" id="part1NumCount" min="2" max="10" value="6">
+            </div>
+            
+            <div class="control-item">
+                <label for="part1MinDigit">最小位數:</label>
+                <input type="number" id="part1MinDigit" min="1" max="5" value="1">
+            </div>
+            
+            <div class="control-item">
+                <label for="part1MaxDigit">最大位數:</label>
+                <input type="number" id="part1MaxDigit" min="1" max="5" value="1">
+            </div>
+        </div>
+        
+        <div class="control-group option-group">
+            <div class="control-item">
+                <label for="part2Count">第二部分題數:</label>
+                <input type="number" id="part2Count" min="1" max="20" value="5">
+            </div>
+            
+            <div class="control-item">
+                <label for="part2NumCount">第二部分運算數量:</label>
+                <input type="number" id="part2NumCount" min="2" max="10" value="4">
+            </div>
+            
+            <div class="control-item">
+                <label for="part2MinDigit">最小位數:</label>
+                <input type="number" id="part2MinDigit" min="1" max="5" value="1">
+            </div>
+            
+            <div class="control-item">
+                <label for="part2MaxDigit">最大位數:</label>
+                <input type="number" id="part2MaxDigit" min="1" max="5" value="2">
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="hideOptionBtn">收起選項</button>
+            <button id="showOptionBtn">顯示選項</button>
+            <button id="generateBtn">生成新題目</button>
+            <button id="showAnswersBtn">顯示答案</button>
+            <button id="printBtn">列印題目</button>
+        </div>
+    </div>
+    
+    <div class="questions">
+        <div class="section">
+            <h2 id="part1Title">第一部分：一位數加減法</h2>
+            <div class="question-list" id="part1">
+                <!-- 這裡將動態生成題目 -->
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 id="part2Title">第二部分：一位數與二位數加減法</h2>
+            <div class="question-list" id="part2">
+                <!-- 這裡將動態生成題目 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="questions">
+        <div class="section">
+            <h2 id="part1Title">第一部分：一位數加減法</h2>
+            <div class="answers hidden" id="answers1">
+                <h3>第一部分答案</h3>
+                <div class="question-list" id="answers-part1">
+                    <!-- 這裡將動態生成答案 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 id="part2Title">第二部分：一位數與二位數加減法</h2>
+            <div class="answers hidden" id="answers2">
+                <h3>第二部分答案</h3>
+                <div class="question-list" id="answers-part2">
+                    <!-- 這裡將動態生成答案 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成一個指定範圍內的隨機整數
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // 根據位數生成隨機數
+        function generateRandomNumber(minDigit, maxDigit) {
+            // Ensure minDigit and maxDigit are within the valid range [1, 10]
+            minDigit = Math.max(1, Math.min(10, minDigit));
+            maxDigit = Math.max(1, Math.min(10, maxDigit));
+
+            // Calculate the minimum and maximum values based on the number of digits
+            const min = minDigit === 1 ? 1 : Math.pow(10, minDigit - 1);
+            const max = Math.pow(10, maxDigit) - 1;
+
+            return getRandomInt(min, max);
+        }
+        
+        // 生成加減法題目
+        function generateExpression(numCount, minDigit, maxDigit) {
+            let nums = [];
+            let ops = [];
+            let result = 0;
+            let valid = false;
+            
+            // 嘗試生成有效的表達式，直到結果為正數
+            while (!valid) {
+                nums = [];
+                ops = [];
+                
+                // 生成第一個數字
+                nums.push(generateRandomNumber(minDigit, maxDigit));
+                result = nums[0];
+                
+                // 生成後續的數字和運算符
+                for (let i = 0; i < numCount - 1; i++) {
+                    // 決定運算符（0為加法，1為減法）
+                    const op = getRandomInt(0, 1);
+                    ops.push(op);
+                    
+                    // 生成下一個數字
+                    let nextNum;
+                    if (op === 0) { // 加法
+                        nextNum = generateRandomNumber(minDigit, maxDigit);
+                        result += nextNum;
+                    } else { // 減法
+                        // 確保減法後結果為正數
+                        const maxVal = Math.min(
+                            // maxDigit === 1 ? 9 : 99, 
+                            Math.pow(10, maxDigit) - 1,
+                            result
+                        );
+                        nextNum = getRandomInt(
+                            // minDigit === 1 ? 1 : 10, 
+                            minDigit === 1 ? 1 : Math.pow(10, minDigit - 1),
+                            maxVal
+                        );
+                        result -= nextNum;
+                    }
+                    nums.push(nextNum);
+                }
+                
+                // 檢查中間步驟是否都是正數
+                let intermResult = nums[0];
+                let allPositive = true;
+                
+                for (let i = 0; i < numCount - 1; i++) {
+                    if (ops[i] === 0) {
+                        intermResult += nums[i + 1];
+                    } else {
+                        intermResult -= nums[i + 1];
+                    }
+                    
+                    if (intermResult < 0) {
+                        allPositive = false;
+                        break;
+                    }
+                }
+                
+                valid = allPositive && result > 0;
+            }
+            
+            return { nums, ops, result };
+        }
+        
+        // 創建直式加減法顯示
+        function createVerticalExpression(nums, ops, result, showResult) {
+            let lines = [];
+            
+            // 第一個數字直接顯示
+            lines.push(nums[0].toString());
+            
+            // 加入每個操作符和數字
+            for (let i = 0; i < ops.length; i++) {
+                const opChar = ops[i] === 0 ? '+' : '-';
+                const numStr = nums[i + 1].toString();
+                lines.push(`${opChar} ${numStr}`);
+            }
+            
+            // 返回格式化的直式表達式
+            return lines;
+        }
+        
+        // 更新標題描述
+        function updateSectionTitles() {
+            const part1MinDigit = parseInt(document.getElementById('part1MinDigit').value);
+            const part1MaxDigit = parseInt(document.getElementById('part1MaxDigit').value);
+            const part1NumCount = parseInt(document.getElementById('part1NumCount').value);
+            
+            const part2MinDigit = parseInt(document.getElementById('part2MinDigit').value);
+            const part2MaxDigit = parseInt(document.getElementById('part2MaxDigit').value);
+            const part2NumCount = parseInt(document.getElementById('part2NumCount').value);
+            
+            let part1DigitDesc = "";
+            if (part1MinDigit === part1MaxDigit) {
+                // part1DigitDesc = part1MinDigit === 1 ? "一位數" : "二位數";
+                part1DigitDesc = part1MinDigit === 1 ? "一位數" : part1MinDigit === 2 ? "二位數" : part1MinDigit + "位數";
+            } else {
+                part1DigitDesc = "混合位數";
+            }
+            
+            let part2DigitDesc = "";
+            if (part2MinDigit === part2MaxDigit) {
+                // part2DigitDesc = part2MinDigit === 1 ? "一位數" : "二位數";
+                part2DigitDesc = part2MinDigit === 1 ? "一位數" : part2MinDigit === 2 ? "二位數" : part2MinDigit + "位數";
+            } else {
+                part2DigitDesc = "混合位數";
+            }
+            
+            document.getElementById('part1Title').textContent = 
+                `第一部分：${part1DigitDesc}加減法（${part1NumCount}口）`;
+            
+            document.getElementById('part2Title').textContent = 
+                `第二部分：${part2DigitDesc}加減法（${part2NumCount}口）`;
+        }
+        
+        // 生成所有題目
+        function generateAllQuestions() {
+            // 獲取設定參數
+            const part1Count = parseInt(document.getElementById('part1Count').value);
+            const part1NumCount = parseInt(document.getElementById('part1NumCount').value);
+            const part1MinDigit = parseInt(document.getElementById('part1MinDigit').value);
+            const part1MaxDigit = parseInt(document.getElementById('part1MaxDigit').value);
+            
+            const part2Count = parseInt(document.getElementById('part2Count').value);
+            const part2NumCount = parseInt(document.getElementById('part2NumCount').value);
+            const part2MinDigit = parseInt(document.getElementById('part2MinDigit').value);
+            const part2MaxDigit = parseInt(document.getElementById('part2MaxDigit').value);
+            
+            // 更新標題描述
+            updateSectionTitles();
+            
+            const part1 = document.getElementById('part1');
+            const part2 = document.getElementById('part2');
+            const answersPart1 = document.getElementById('answers-part1');
+            const answersPart2 = document.getElementById('answers-part2');
+            
+            // 清空之前的題目
+            part1.innerHTML = '';
+            part2.innerHTML = '';
+            answersPart1.innerHTML = '';
+            answersPart2.innerHTML = '';
+            
+            // 隱藏答案
+            document.getElementById('answers1').classList.add('hidden');
+            document.getElementById('answers2').classList.add('hidden');
+            document.getElementById('showAnswersBtn').textContent = '顯示答案';
+            
+            // 生成第一部分題目
+            for (let i = 0; i < part1Count; i++) {
+                const { nums, ops, result } = generateExpression(
+                    part1NumCount, 
+                    part1MinDigit, 
+                    part1MaxDigit
+                );
+                const lines = createVerticalExpression(nums, ops, result, false);
+                
+                // 創建題目元素
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                // 添加題號
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'question-number';
+                numberDiv.textContent = `${i + 1}.`;
+                questionDiv.appendChild(numberDiv);
+                
+                // 添加每一行
+                for (let line of lines) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.textContent = line;
+                    questionDiv.appendChild(lineDiv);
+                }
+                
+                // 添加分隔線
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'vertical-line';
+                questionDiv.appendChild(lineDiv);
+                
+                part1.appendChild(questionDiv);
+                
+                // 創建答案元素
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'question';
+                
+                // 添加題號
+                const ansNumberDiv = document.createElement('div');
+                ansNumberDiv.className = 'question-number';
+                ansNumberDiv.textContent = `${i + 1}.`;
+                answerDiv.appendChild(ansNumberDiv);
+                
+                // 添加每一行
+                for (let line of lines) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'question-line';
+                    lineDiv.textContent = line;
+                    answerDiv.appendChild(lineDiv);
+                }
+                
+                // 添加分隔線
+                const ansLineDiv = document.createElement('div');
+                ansLineDiv.className = 'vertical-line';
+                answerDiv.appendChild(ansLineDiv);
+                
+                // 添加結果
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.textContent = result.toString();
+                answerDiv.appendChild(resultDiv);
+                
+                answersPart1.appendChild(answerDiv);
+            }
+            
+            // 生成第二部分題目 - 注意題號接續第一部分
+            for (let i = 0; i < part2Count; i++) {
+                const questionNumber = part1Count + i + 1; // 題號接續第一部分
+                
+                const { nums, ops, result } = generateExpression(
+                    part2NumCount, 
+                    part2MinDigit, 
+                    part2MaxDigit
+                );
+                const lines = createVerticalExpression(nums, ops, result, false);
+                
+                // 創建題目元素
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                // 添加題號
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'question-number';
+                numberDiv.textContent = `${questionNumber}.`;
+                questionDiv.appendChild(numberDiv);
+                
+                // 添加每一行
+                for (let line of lines) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.textContent = line;
+                    questionDiv.appendChild(lineDiv);
+                }
+                
+                // 添加分隔線
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'vertical-line';
+                questionDiv.appendChild(lineDiv);
+                
+                part2.appendChild(questionDiv);
+                
+                // 創建答案元素
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'question';
+                
+                // 添加題號
+                const ansNumberDiv = document.createElement('div');
+                ansNumberDiv.className = 'question-number';
+                ansNumberDiv.textContent = `${questionNumber}.`;
+                answerDiv.appendChild(ansNumberDiv);
+                
+                // 添加每一行
+                for (let line of lines) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'question-line';
+                    lineDiv.textContent = line;
+                    answerDiv.appendChild(lineDiv);
+                }
+                
+                // 添加分隔線
+                const ansLineDiv = document.createElement('div');
+                ansLineDiv.className = 'vertical-line';
+                answerDiv.appendChild(ansLineDiv);
+                
+                // 添加結果
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.textContent = result.toString();
+                answerDiv.appendChild(resultDiv);
+                
+                answersPart2.appendChild(answerDiv);
+            }
+        }
+        
+        // 顯示或隱藏答案
+        function toggleAnswers() {
+            const answers1 = document.getElementById('answers1');
+            const answers2 = document.getElementById('answers2');
+            const button = document.getElementById('showAnswersBtn');
+            
+            if (answers1.classList.contains('hidden')) {
+                answers1.classList.remove('hidden');
+                answers2.classList.remove('hidden');
+                document.querySelectorAll('.question-line').forEach(function(item){
+                    item.classList.add('hidden');
+                });
+                button.textContent = '隱藏答案';
+            } else {
+                answers1.classList.add('hidden');
+                answers2.classList.add('hidden');
+                button.textContent = '顯示答案';
+            }
+        }
+        
+        // 列印功能
+        function printQuestions() {
+            window.print();
+        }
+
+        // 收起選項
+        function hideOption(){
+            document.getElementById('hideOptionBtn').style.display = 'none';
+            document.getElementById('showOptionBtn').style.display = 'block';
+            document.querySelectorAll('.option-group').forEach(function(item){
+                item.style.display = 'none';
+            });
+        }
+
+        // 顯示選項
+        function showOption(){
+            document.getElementById('hideOptionBtn').style.display = 'block';
+            document.getElementById('showOptionBtn').style.display = 'none';
+            document.querySelectorAll('.option-group').forEach(function(item){
+                item.style.display = 'flex';
+            });
+        }
+        
+        // 綁定按鈕事件
+        document.getElementById('hideOptionBtn').addEventListener('click', hideOption);
+        document.getElementById('showOptionBtn').addEventListener('click', showOption);
+        document.getElementById('generateBtn').addEventListener('click', generateAllQuestions);
+        document.getElementById('showAnswersBtn').addEventListener('click', toggleAnswers);
+        document.getElementById('printBtn').addEventListener('click', printQuestions);
+        
+        // 頁面加載時生成題目，並且收起選項
+        generateAllQuestions();
+        hideOption();
+    </script>
+</body>
+</html>
