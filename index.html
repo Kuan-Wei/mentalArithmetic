@@ -207,9 +207,9 @@
         </div>
     </div>
     
-    <div class="questions">
+    <div class="questions" style="margin-top: 20px;" id="answers_section">
         <div class="section">
-            <h2 id="part1Title">第一部分：一位數加減法</h2>
+            <h2 id="answer_part1Title">第一部分答案：一位數加減法</h2>
             <div class="answers hidden" id="answers1">
                 <h3>第一部分答案</h3>
                 <div class="question-list" id="answers-part1">
@@ -219,7 +219,7 @@
         </div>
         
         <div class="section">
-            <h2 id="part2Title">第二部分：一位數與二位數加減法</h2>
+            <h2 id="answer_part2Title">第二部分答案：一位數與二位數加減法</h2>
             <div class="answers hidden" id="answers2">
                 <h3>第二部分答案</h3>
                 <div class="question-list" id="answers-part2">
@@ -364,6 +364,12 @@
             
             document.getElementById('part2Title').textContent = 
                 `第二部分：${part2DigitDesc}加減法（${part2NumCount}口）`;
+            
+            document.getElementById('answer_part1Title').textContent = 
+                `第一部分答案：${part1DigitDesc}加減法（${part1NumCount}口）`;
+            
+            document.getElementById('answer_part2Title').textContent = 
+                `第二部分答案：${part2DigitDesc}加減法（${part2NumCount}口）`;
         }
         
         // 生成所有題目
@@ -396,6 +402,7 @@
             // 隱藏答案
             document.getElementById('answers1').classList.add('hidden');
             document.getElementById('answers2').classList.add('hidden');
+            document.getElementById('answers_section').classList.add('hidden');
             document.getElementById('showAnswersBtn').textContent = '顯示答案';
             
             // 生成第一部分題目
@@ -540,11 +547,13 @@
             if (answers1.classList.contains('hidden')) {
                 answers1.classList.remove('hidden');
                 answers2.classList.remove('hidden');
+                document.getElementById('answers_section').classList.remove('hidden');
                 document.querySelectorAll('.question-line').forEach(function(item){
                     item.classList.add('hidden');
                 });
                 button.textContent = '隱藏答案';
             } else {
+                document.getElementById('answers_section').classList.add('hidden');
                 answers1.classList.add('hidden');
                 answers2.classList.add('hidden');
                 button.textContent = '顯示答案';
