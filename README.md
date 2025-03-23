@@ -64,7 +64,8 @@ This web application is a **customizable vertical mental arithmetic exercise gen
 
 ## 作者 (Author)
 
-[Your Name/GitHub Username]
+Ho Kuan Wei 
+Claude 3.7 Sonnet
 
 ## 授權 (License)
 
